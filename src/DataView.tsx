@@ -1,6 +1,6 @@
 import React from 'react'
 import {DataGrid, ColDef} from '@material-ui/data-grid'
-import {Searchbar} from './Searchbar'
+import Searchbar from './Searchbar'
 import {grabData} from './GrabDataHelpers';
 
 const columns: ColDef[] = [
@@ -41,13 +41,23 @@ export class DataView extends React.Component<{}, DataViewState> {
 
     render() {
         return (
-            <div className="DataView">
-                <Searchbar />
-                <header><h1>Current state counts</h1></header>
+            <div className="DataView" style={{
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center'
+                }}>
+                    <Searchbar />
+                    <header><h1>Current state counts</h1></header>
+                </div>
                 <DataGrid 
                     rows={this.state.rows} 
                     columns={columns} 
-                    pageSize={10} 
+                    pageSize={15} 
                     autoHeight={true}
                     disableSelectionOnClick={true}/>
             </div>

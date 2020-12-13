@@ -1,18 +1,18 @@
 import React from 'react';
-import { Searchbar } from './Searchbar'
+import Searchbar from './Searchbar'
 import { MapContainer, TileLayer } from 'react-leaflet';
 
 export function MapView() {
     return (
         <div className="MapView">
-            <Searchbar />
+            <Searchbar absolutePosition={{x: 150, y: 14}}/>
             <MapContainer
                 center={[51.505, -0.09]}
                 zoom={13}
                 scrollWheelZoom={false}
                 style={{
-                    height: "51vw",
-                    width: "100vw",
+                    height: "100vh",
+                    width: "95vw",
                     zIndex: 1
                 }}>
                 <TileLayer
