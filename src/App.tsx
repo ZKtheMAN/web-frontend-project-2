@@ -6,6 +6,7 @@ import {GraphView} from './components/GraphView';
 
 import {grabDataTest} from './dataretreival';
 
+
 // TODO: for Chuck. Remember to use module.css instead of plain .css so we can apply that style is not being applied to all of the components.
 class App extends React.Component {
     // constructor is implicitly created

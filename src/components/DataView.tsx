@@ -28,6 +28,8 @@ interface StateRowData extends StateData {
 type DataViewState = {
     rows: StateRowData[]
 }
+
+
 export class DataView extends React.Component<{}, DataViewState> {
     state: DataViewState = {
         rows: []
@@ -38,14 +40,15 @@ export class DataView extends React.Component<{}, DataViewState> {
             (val, index) => {
                 return {...val, id: index}
             })
-            .then((val) => this.setState({rows: val}));
+            .then((val) => this.setState({rows: val})); //populates state with information to be displayed in each row.
+        
     }
 
     render() {
         return (
             <div className={styles.container}>
                 <Searchbar />
-                <header><h1>Current state counts</h1></header>
+                <header><h1>Current State Counts</h1></header>
                 <DataGrid 
                     rows={this.state.rows} 
                     columns={columns} 
