@@ -7,6 +7,11 @@ export async function grabData<TPrototype, TResultantType>(
     return body.map(converter);
 }
 
+export interface StateHistoryData {
+    date: number,
+    positive: number,
+}
+
 // =============================
 //          SAMPLE DATA
 // =============================

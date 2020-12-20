@@ -35,7 +35,9 @@ class Searchbar extends React.Component<SearchbarProps, SearchbarState> {
         }
     
         return (
-            <div className="Searchbar">
+            <div className="Searchbar" style={{
+                zIndex: 10
+            }}>
                 <Paper elevation={1} style={styleObj}>
                     <TextField
                         placeholder="Search..."
@@ -58,7 +60,6 @@ class Searchbar extends React.Component<SearchbarProps, SearchbarState> {
                         }}
                     />
                 </Paper>
-
             </div>
         )
     }
