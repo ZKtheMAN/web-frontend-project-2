@@ -16,5 +16,3 @@ ReactDOM.render(
     </React.StrictMode>,
     document.getElementById('root')
 );
-
-// For new users. We are accessing root from this code <div id="root"></div> that resides in index.html.

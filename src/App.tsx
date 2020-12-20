@@ -1,30 +1,66 @@
 import React from 'react';
-import styles from './App.module.css'; // ensures that there is no interference. more -> https://codeburst.io/4-four-ways-to-style-react-components-ac6f323da822
-import {MapView} from './components/MapView';
-import {DataView} from './components/DataView';
-import {GraphView} from './components/GraphView';
+import {Button} from '@material-ui/core';
+import {Public, TableChart, Assessment} from '@material-ui/icons';
+import './App.css';
+import {MapView} from './MapView';
+import {DataView} from './DataView';
+import {GraphView} from './GraphView';
 
-import {grabDataTest} from './dataretreival';
 
-
-// TODO: for Chuck. Remember to use module.css instead of plain .css so we can apply that style is not being applied to all of the components.
-class App extends React.Component {
-    // constructor is implicitly created
-    currentInformation = {
-        data: {}
+enum AppView {
+    Map,
+    Data,
+    Graph
+}
+type AppState = {
+    currentView: AppView,
+    data:{}
+}
+class App extends React.Component<{}, AppState> {
+    state = {
+        currentView: AppView.Map,
+        data:{}
     };
-    async componentDidMount() {
-        const pulledData = await grabDataTest();
-        console.log(pulledData);
-        //this.setState({ data: pulledData });
-    }
-    render(){
-        // pulling data out of currentInformation to be used as a propertie for our components.
-        const { data } = this.currentInformation;
-        
+
+    render() {
+        var view;
+        switch (this.state.currentView) {
+            case AppView.Map:
+                view = <MapView></MapView>;
+                break;
+            case AppView.Data:
+                view = <DataView></DataView>;
+                break;
+            case AppView.Graph:
+                view = <GraphView></GraphView>;
+                break;
+        }
+
         return (
-            <div className={styles.container}>
-                <DataView></DataView>
+            <div className="App">
+                <div className="nav-rail">
+                    <Button onClick={() => {this.setState({currentView: AppView.Map})}}>
+                        <div className="nav-rail-button">
+                            <Public />
+                            <span>Map</span>
+                        </div>
+                    </Button>
+                    <Button onClick={() => {this.setState({currentView: AppView.Data})}}>
+                        <div className="nav-rail-button">
+                            <TableChart />
+                            <span>Data</span>
+                        </div>
+                    </Button>
+                    <Button onClick={() => {this.setState({currentView: AppView.Graph})}}>
+                        <div className="nav-rail-button">
+                            <Assessment />
+                            Graph
+                        </div>
+                    </Button>
+                </div>
+                <div style={{width: "95%"}}>
+                    {view}
+                </div>
             </div>
         );
     }
