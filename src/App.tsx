@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Paper} from '@material-ui/core';
+import {Button} from '@material-ui/core';
 import {Public, TableChart, Assessment} from '@material-ui/icons';
 import './App.css';
 import {MapView} from './MapView';
@@ -13,11 +13,13 @@ enum AppView {
     Graph
 }
 type AppState = {
-    currentView: AppView
+    currentView: AppView,
+    data:{}
 }
 class App extends React.Component<{}, AppState> {
     state = {
-        currentView: AppView.Map
+        currentView: AppView.Map,
+        data:{}
     };
 
     render() {
