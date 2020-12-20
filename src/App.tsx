@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Paper} from '@material-ui/core';
+import {Button} from '@material-ui/core';
 import {Public, TableChart, Assessment} from '@material-ui/icons';
 import './App.css';
 import {MapView} from './MapView';

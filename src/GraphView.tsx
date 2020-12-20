@@ -1,6 +1,6 @@
 import React from 'react';
 import {ResponsiveLine} from '@nivo/line';
-import {grabData} from './GrabDataHelpers';
+import {grabData, states, abbreviations} from './GrabDataHelpers';
 import Searchbar from './Searchbar';
 
 // taken direct from Nivo's website lmao
@@ -21,7 +21,7 @@ type GraphViewState = {
     graphData: GraphLine[]
 }
 export class GraphView extends React.Component<{}, GraphViewState> {
-    state = {
+    state: GraphViewState = {
         graphData: []
     }
 
@@ -37,13 +37,42 @@ export class GraphView extends React.Component<{}, GraphViewState> {
             }
         ).then((x) => this.setState({
             graphData: [{
-                id: 0,
+                id: "CA",
                 data: x.reverse()
             }]
         }));
     }
 
+    addLineToGraph(newLocationName: string) {
+        let stateIndex = states.indexOf(newLocationName);
+        let statePostal = abbreviations[stateIndex];
+
+        grabData("https://api.covidtracking.com/v1/states/" + statePostal.toLowerCase() + "/daily.json",
+            (val: StateHistoryData, index) => {
+                let dateAsString = val.date.toString();
+                let formString = dateAsString.substring(0, 4) + "-" + dateAsString.substring(4, 6) + "-" + dateAsString.substring(6);
+                return {
+                    x: formString,
+                    y: val.positive
+                }
+            }
+        ).then((x) => {
+            var graphData: GraphLine[] = this.state.graphData.slice();
+            var newGraphLine: GraphLine = {
+                id: statePostal,
+                data: x.reverse()
+            }
+            graphData.push(newGraphLine);
+            this.setState({
+                graphData: graphData
+            })
+        }
+        );
+    }
+
     render() {
+        var locationNames = this.state.graphData.map((x) => x.id).join(", ");
+
         return (
             <div className="GraphView">
                 <div style={{
@@ -52,8 +81,10 @@ export class GraphView extends React.Component<{}, GraphViewState> {
                     justifyContent: 'flex-start',
                     alignItems: 'center'
                 }}>
-                    <Searchbar />
-                    <header><h1>California state history</h1></header>
+                    <Searchbar 
+                        pressEnterEvent={(val) => this.addLineToGraph(val)} // TODO //
+                        />
+                    <header><h1>{locationNames} state history</h1></header>
                 </div>
                 <div style={{height: "85vh"}}>
                     <ResponsiveLine 
@@ -72,7 +103,7 @@ export class GraphView extends React.Component<{}, GraphViewState> {
                         margin={{
                             top: 0,
                             bottom: 40,
-                            left: 60,
+                            left: 120,
                             right: 50
                         }}
                         axisBottom={{
@@ -84,6 +115,13 @@ export class GraphView extends React.Component<{}, GraphViewState> {
                             legendPosition: 'middle',
                             legendOffset: 30,
                         }}
+                        legends={[{
+                            anchor: "top-left",
+                            direction: "column",
+                            itemWidth: 80,
+                            itemHeight: 20,
+                            translateX: -120
+                        }]}
                     />
                 </div>
             </div>

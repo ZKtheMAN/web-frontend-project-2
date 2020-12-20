@@ -1,7 +1,7 @@
 import React from 'react'
 import {DataGrid, ColDef} from '@material-ui/data-grid'
 import Searchbar from './Searchbar'
-import {grabData} from './GrabDataHelpers';
+import {grabData, states} from './GrabDataHelpers';
 
 const columns: ColDef[] = [
     { field: 'state', headerName: "State", width: 130 },
@@ -24,11 +24,13 @@ interface StateRowData extends StateData {
 }
 
 type DataViewState = {
-    rows: StateRowData[]
+    rows: StateRowData[],
+    tablePage: number
 }
 export class DataView extends React.Component<{}, DataViewState> {
     state: DataViewState = {
-        rows: []
+        rows: [],
+        tablePage: 1
     };
 
     componentDidMount() {
@@ -51,7 +53,15 @@ export class DataView extends React.Component<{}, DataViewState> {
                     justifyContent: 'flex-start',
                     alignItems: 'center'
                 }}>
-                    <Searchbar />
+                    <Searchbar 
+                        autofills={states}
+                        pressEnterEvent={(val) => {
+                            this.setState({
+                                // table pages start at 1 for some dumb reason
+                                tablePage: Math.ceil(states.indexOf(val) / 15)
+                            })
+                        }} // TODO //
+                        />
                     <header><h1>Current state counts</h1></header>
                 </div>
                 <DataGrid 
@@ -59,7 +69,14 @@ export class DataView extends React.Component<{}, DataViewState> {
                     columns={columns} 
                     pageSize={15} 
                     autoHeight={true}
-                    disableSelectionOnClick={true}/>
+                    disableSelectionOnClick={true}
+                    page={this.state.tablePage}
+                    onPageChange={(params) => {
+                        this.setState({
+                            tablePage: params.page
+                        });
+                    }}
+                    />
             </div>
         )
     }
