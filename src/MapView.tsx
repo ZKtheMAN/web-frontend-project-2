@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react';
 import Searchbar from './Searchbar';
 import * as L from "leaflet";
 import { Circle, MapContainer, TileLayer, useMap,Popup } from 'react-leaflet';
-import {states, latlngs,getMapData,getCountryData} from './GrabDataHelpers'
+import {states, latlngs,getMapData,getCountryData, getUSData, getStateData} from './GrabDataHelpers'
 
 // This is a kludge that I really don't see any other way around.
 // Apparently, a React leaflet map can't be manually controlled after it's created.
@@ -47,11 +47,19 @@ export class MapView extends React.Component<{}, MapViewState> {
         });
     }
 
-    render() {
-        /*****/
-        getMapData();
+    async componentDidMount(){
+        //Function returns a promise
+        //Turn promise into data
+        const retData =  await getMapData();
+        this.setState({data:retData});
+        
         getCountryData("USA");
-
+        getUSData();
+        getStateData("California");
+        /****/
+    }
+    render() {
+        console.log('in render',this.state.data);
         return (
             <div className="MapView">
                 <Searchbar 

@@ -2,6 +2,7 @@ import axios from 'axios';
 //can use /deaths, /daily, /recovered, /confirmed, /countries/[CountryName] on base_url
 const base_url = "https://covid19.mathdro.id/api";
 const global_overview_url = "https://disease.sh/v3/covid-19/all";
+const states_url = "https://disease.sh/v3/covid-19/states/";
 //Gets all data for countries
 const countries_url = 'https://disease.sh/v3/covid-19/countries/';
 
@@ -14,6 +15,73 @@ export async function grabData<TPrototype, TResultantType>(
     return body.map(converter);
 }
 
+export const getMapData = async () => {
+    try {
+        
+        const response = await fetch(countries_url);
+        //returns array of countries
+        const data = await response.json();
+        /*first country
+        console.log('first country object', data[0]);
+        console.log(data[0].cases);
+        console.log('latitude',data[0].countryInfo['lat']);
+        console.log('longitude', data[0].countryInfo['long']);*/
+    
+        if (!data){
+          return ;}
+      
+      return data;
+    } catch (error) {
+        return error;
+    }
+  };
+
+export const getCountryData = async (country: any)=>{
+  if (country){
+    let cUrl = `${countries_url}${country}`;
+    //console.log('county url',cUrl);
+    try{
+        const response = await fetch(cUrl);
+        const data = await response.json();
+        return data;
+        //console.log('get country',data);
+    }
+    catch(error){
+      return error;
+    }
+  }
+  return {};
+}
+
+export const getUSData = async () =>{
+  try {
+    const response = await fetch(states_url);
+    //returns array of states
+    const data = await response.json();
+    //State Array
+    //console.log('US object', data);
+    if (!data){
+      //console.log('failed');
+      return ;}
+    return data;
+  } catch (error) {return error;}
+}
+
+export const getStateData = async (states: any)=>{
+  if (states){
+    let sUrl = `${states_url}${states}`;
+    //console.log('state url',sUrl);
+    try{
+        const response = await fetch(sUrl);
+        const data = await response.json();
+        //console.log('state',data);
+    }
+    catch(error){
+      return error;
+    }
+  }
+  return {};
+}
 // =============================
 //          SAMPLE DATA
 // =============================
@@ -44,42 +112,6 @@ export var states = [
     "Virginia", "Virgin Islands", "Vermont",
     "Washington", "Wisconsin", "West Virginia", "Wyoming",
 ]
-export const getMapData = async () => {
-    try {
-        
-        const response = await fetch(countries_url);
-        //returns array of countries
-        const data = await response.json();
-        //first country
-        console.log('first country object', data[0]);
-        console.log(data[0].cases);
-        console.log('latitude',data[0].countryInfo['lat']);
-        console.log('longitude', data[0].countryInfo['long']);
-    
-        if (!data){
-          console.log('failed');
-          return ;}
-        return data;
-    } catch (error) {
-        return error;
-    }
-  };
-
-export const getCountryData = async (country: any)=>{
-  if (country){
-    let cUrl = `${countries_url}${country}`;
-    console.log('url',cUrl);
-    try{
-        const response = await fetch(cUrl);
-        const data = await response.json();
-        console.log('get country',data);
-    }
-    catch(error){
-      return error;
-    }
-  }
-  return {};
-}
 
 export var abbreviations = [
     "AK","AL","AR","AS","AZ",
