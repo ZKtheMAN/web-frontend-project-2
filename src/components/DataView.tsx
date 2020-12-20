@@ -1,7 +1,9 @@
 import React from 'react'
 import {DataGrid, ColDef} from '@material-ui/data-grid'
 import {Searchbar} from './Searchbar'
-import {grabData} from './GrabDataHelpers';
+import {grabData} from '../GrabDataHelpers';
+
+import styles from './Data.module.css'
 
 const columns: ColDef[] = [
     { field: 'state', headerName: "State", width: 130 },
@@ -41,7 +43,7 @@ export class DataView extends React.Component<{}, DataViewState> {
 
     render() {
         return (
-            <div className="DataView">
+            <div className={styles.container}>
                 <Searchbar />
                 <header><h1>Current state counts</h1></header>
                 <DataGrid 

@@ -25,7 +25,7 @@ export function Searchbar() {
                     }}
                     onKeyUp={(event) => {
                         if (event.key === "Enter") {
-                            alert("ayy");
+                            alert("ayy"); // L 0 L
                         }
                     }}
                 />

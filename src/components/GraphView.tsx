@@ -1,6 +1,8 @@
 import React from 'react';
 import {ResponsiveLine} from '@nivo/line';
-import {grabData} from './GrabDataHelpers';
+import {grabData} from '../GrabDataHelpers';
+
+
 
 // taken direct from Nivo's website lmao
 interface GraphLine {
@@ -19,11 +21,13 @@ export class GraphView extends React.Component<{}, GraphViewState> {
         graphData: []
     }
 
-    componentDidMount() {
+    componentDidMount(){
+        /* Belongs to Zakee. Comment from Chuck for Testing Purposes.
         grabData("https://api.covidtracking.com/v1/states/ca/daily.json",
                 (val, index) => {
                     
                 })
+        */
     }
 
     render() {
