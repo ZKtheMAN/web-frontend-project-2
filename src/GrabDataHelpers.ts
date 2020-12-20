@@ -1,3 +1,11 @@
+import axios from 'axios';
+//can use /deaths, /daily, /recovered, /confirmed, /countries/[CountryName] on base_url
+const base_url = "https://covid19.mathdro.id/api";
+const global_overview_url = "https://disease.sh/v3/covid-19/all";
+const states_url = "https://disease.sh/v3/covid-19/states/";
+//Gets all data for countries
+const countries_url = 'https://disease.sh/v3/covid-19/countries/';
+
 export async function grabData<TPrototype, TResultantType>(
     url: string,
     converter: (val: TPrototype, index: number) => TResultantType)
@@ -12,24 +20,106 @@ export interface StateHistoryData {
     positive: number,
 }
 
-// =============================
-//          SAMPLE DATA
-// =============================
+export interface CountryData {
+    country: string,
+    countryInfo: {
+        lat: number,
+        long: number
+    },
+    cases: number,
+}
+export const getMapData = async () => {
+    try {
+
+        const response = await fetch(countries_url);
+        //returns array of countries
+        const data = await response.json();
+        /*first country
+        console.log('first country object', data[0]);
+        console.log(data[0].cases);
+        console.log('latitude',data[0].countryInfo['lat']);
+        console.log('longitude', data[0].countryInfo['long']);*/
+
+        if (!data){
+          return ;}
+
+      return data;
+    } catch (error) {
+        return error;
+    }
+  };
+
+export const getCountryData = async (country: any)=>{
+  if (country){
+    let cUrl = `${countries_url}${country}`;
+    //console.log('county url',cUrl);
+    try{
+        const response = await fetch(cUrl);
+        const data = await response.json();
+        return data;
+        //console.log('get country',data);
+    }
+    catch(error){
+      return error;
+    }
+  }
+  return {};
+}
+
+export interface StateDataCurrent {
+    state: string,
+    cases: number
+}
+export const getUSData = async () =>{
+  try {
+    const response = await fetch(states_url);
+    //returns array of states
+    const data = await response.json();
+    //State Array
+    //console.log('US object', data);
+    if (!data){
+      //console.log('failed');
+      return ;}
+    return data;
+  } catch (error) {return error;}
+}
+
+export const getStateData = async (states: any)=>{
+  if (states){
+    let sUrl = `${states_url}${states}`;
+    //console.log('state url',sUrl);
+    try{
+        const response = await fetch(sUrl);
+        const data = await response.json();
+        //console.log('state',data);
+    }
+    catch(error){
+      return error;
+    }
+  }
+  return {};
+}
+
+// SO AS IT TURNS OUT DISEASE.SH DOESN'T GIVE LAT/LNG FOR THE US STATES
+// JUST THE US ITSELF
+// SO WE'RE LEAVING IT IN HERE
+// ALSO WE'RE USING THE COVID TRACKING PROJECT FOR STATE HISTORICAL DATA
+// SO THERE'S THAT TOO
 
 
 // SORTED BY POSTAL CODE ABBREVIATION
 // DUE TO HOW THE COVID TRACKING PROJECT WORKS
 export var states = [
-    "Alaska", "Alabama", "Arkansas","American Samoa", "Arizona",
+    "Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona",
     "California", "Colorado", "Connecticut",
-    "District of Columbia","Delaware",
+    "District Of Columbia","Delaware",
     "Florida",
     "Georgia", "Guam",
     "Hawaii",
     "Iowa", "Idaho", "Illinois", "Indiana",
     "Kansas", "Kentucky",
     "Louisiana",
-    "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mariana Islands",
+    "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Northern Mariana Islands",
     "Mississippi", "Montana",
     "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey",
     "New Mexico", "Nevada", "New York",
@@ -39,7 +129,7 @@ export var states = [
     "South Carolina", "South Dakota",
     "Tennessee", "Texas",
     "Utah",
-    "Virginia", "Virgin Islands", "Vermont",
+    "Virginia", "United States Virgin Islands", "Vermont",
     "Washington", "Wisconsin", "West Virginia", "Wyoming",
 ]
 
