@@ -3,7 +3,7 @@ import axios from 'axios';
 const base_url = "https://covid19.mathdro.id/api";
 const global_overview_url = "https://disease.sh/v3/covid-19/all";
 //Gets all data for countries
-const countries_url = 'https://disease.sh/v3/covid-19/countries';
+const countries_url = 'https://disease.sh/v3/covid-19/countries/';
 
 export async function grabData<TPrototype, TResultantType>(
     url: string,
@@ -46,8 +46,8 @@ export var states = [
 ]
 export const getMapData = async () => {
     try {
-        const url = 'https://disease.sh/v3/covid-19/countries';
-        const response = await fetch(url);
+        
+        const response = await fetch(countries_url);
         //returns array of countries
         const data = await response.json();
         //first country
@@ -65,6 +65,21 @@ export const getMapData = async () => {
     }
   };
 
+export const getCountryData = async (country: any)=>{
+  if (country){
+    let cUrl = `${countries_url}${country}`;
+    console.log('url',cUrl);
+    try{
+        const response = await fetch(cUrl);
+        const data = await response.json();
+        console.log('get country',data);
+    }
+    catch(error){
+      return error;
+    }
+  }
+  return {};
+}
 
 export var abbreviations = [
     "AK","AL","AR","AS","AZ",
