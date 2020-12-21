@@ -5,6 +5,7 @@ const global_overview_url = "https://disease.sh/v3/covid-19/all";
 const states_url = "https://disease.sh/v3/covid-19/states/";
 //Gets all data for countries
 const countries_url = 'https://disease.sh/v3/covid-19/countries/';
+const historical_url = 'https://disease.sh/v3/covid-19/historical/'
 
 export async function grabData<TPrototype, TResultantType>(
     url: string,
@@ -20,17 +21,36 @@ export interface StateHistoryData {
     positive: number,
 }
 
-export interface CountryData {
+export interface LocationData {
+    cases: number,
+    todayCases: number,
+    deaths: number,
+    recovered: number,
+}
+
+export function extractData(data: LocationData, kind: "total" | "today" | "deaths" | "recovered"): number {
+    switch (kind) {
+        case "total":
+            return data.cases;
+        case "today":
+            return data.todayCases;
+        case "deaths":
+            return data.deaths;
+        case "recovered":
+            return data.recovered
+    }
+}
+
+export interface CountryData extends LocationData {
     country: string,
     countryInfo: {
         lat: number,
         long: number
     },
-    cases: number,
+
 }
 export const getMapData = async () => {
     try {
-
         const response = await fetch(countries_url);
         //returns array of countries
         const data = await response.json();
@@ -40,64 +60,86 @@ export const getMapData = async () => {
         console.log('latitude',data[0].countryInfo['lat']);
         console.log('longitude', data[0].countryInfo['long']);*/
 
-        if (!data){
-          return ;}
+        if (!data) {
+            return;
+        }
 
-      return data;
+        return data;
     } catch (error) {
         return error;
     }
-  };
+};
 
-export const getCountryData = async (country: any)=>{
-  if (country){
-    let cUrl = `${countries_url}${country}`;
-    //console.log('county url',cUrl);
-    try{
-        const response = await fetch(cUrl);
+export const getCountryData = async (country: any) => {
+    if (country) {
+        let cUrl = `${countries_url}${country}`;
+        //console.log('county url',cUrl);
+        try {
+            const response = await fetch(cUrl);
+            const data = await response.json();
+            return data;
+            //console.log('get country',data);
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    return {};
+}
+
+export interface StateDataCurrent extends LocationData {
+    state: string,
+}
+export const getUSData = async () => {
+    try {
+        const response = await fetch(states_url);
+        //returns array of states
+        const data = await response.json();
+        //State Array
+        //console.log('US object', data);
+        if (!data) {
+            //console.log('failed');
+            return;
+        }
+        return data;
+    } catch (error) { return error; }
+}
+
+export const getStateData = async (states: any) => {
+    if (states) {
+        let sUrl = `${states_url}${states}`;
+        //console.log('state url',sUrl);
+        try {
+            const response = await fetch(sUrl);
+            const data = await response.json();
+            return data;
+            //console.log('state',data);
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    return {};
+}
+
+export interface CountryHistoricalData {
+    country: string,
+    province: string[],
+    timeline: {
+        cases: {[date: string]: number},
+        deaths: {[date: string]: number},
+        recovered: {[date: string]: number}
+    }
+}
+export const getCountryHistoricalData = async (country: string): Promise<CountryHistoricalData> => {
+    let urlToHit = `${historical_url}${country}?lastdays=all`;
+    try {
+        const response = await fetch(urlToHit);
         const data = await response.json();
         return data;
-        //console.log('get country',data);
+    } catch (error) {
+        return error;
     }
-    catch(error){
-      return error;
-    }
-  }
-  return {};
-}
-
-export interface StateDataCurrent {
-    state: string,
-    cases: number
-}
-export const getUSData = async () =>{
-  try {
-    const response = await fetch(states_url);
-    //returns array of states
-    const data = await response.json();
-    //State Array
-    //console.log('US object', data);
-    if (!data){
-      //console.log('failed');
-      return ;}
-    return data;
-  } catch (error) {return error;}
-}
-
-export const getStateData = async (states: any)=>{
-  if (states){
-    let sUrl = `${states_url}${states}`;
-    //console.log('state url',sUrl);
-    try{
-        const response = await fetch(sUrl);
-        const data = await response.json();
-        //console.log('state',data);
-    }
-    catch(error){
-      return error;
-    }
-  }
-  return {};
 }
 
 // SO AS IT TURNS OUT DISEASE.SH DOESN'T GIVE LAT/LNG FOR THE US STATES
@@ -112,7 +154,7 @@ export const getStateData = async (states: any)=>{
 export var states = [
     "Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona",
     "California", "Colorado", "Connecticut",
-    "District Of Columbia","Delaware",
+    "District Of Columbia", "Delaware",
     "Florida",
     "Georgia", "Guam",
     "Hawaii",
@@ -134,25 +176,25 @@ export var states = [
 ]
 
 export var abbreviations = [
-    "AK","AL","AR","AS","AZ",
-    "CA","CO","CT",
-    "DC","DE",
+    "AK", "AL", "AR", "AS", "AZ",
+    "CA", "CO", "CT",
+    "DC", "DE",
     "FL",
-    "GA","GU",
-    "HI","IA",
-    "ID","IL","IN",
-    "KS","KY",
+    "GA", "GU",
+    "HI", "IA",
+    "ID", "IL", "IN",
+    "KS", "KY",
     "LA",
-    "MA","MD","ME","MI","MN","MO","MP","MS","MT",
-    "NC","ND","NE","NH","NJ","NM","NV","NY",
-    "OH","OK","OR",
-    "PA","PR",
+    "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT",
+    "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
+    "OH", "OK", "OR",
+    "PA", "PR",
     "RI",
-    "SC","SD",
-    "TN","TX",
+    "SC", "SD",
+    "TN", "TX",
     "UT",
-    "VA","VI","VT",
-    "WA","WI","WV","WY", 
+    "VA", "VI", "VT",
+    "WA", "WI", "WV", "WY",
 ]
 
 export var latlngs: [number, number][] = [

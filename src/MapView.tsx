@@ -1,8 +1,9 @@
 import React from 'react';
 import Searchbar from './Searchbar';
 import * as L from "leaflet";
-import { Circle, MapConsumer, MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
-import {getMapData, getCountryData, getUSData, CountryData, StateDataCurrent, StateHistoryData, states, latlngs} from './GrabDataHelpers'
+import { Circle, MapConsumer, MapContainer, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import {getMapData, getCountryData, getUSData, CountryData, StateDataCurrent, StateHistoryData, states, latlngs, LocationData, extractData} from './GrabDataHelpers'
+import { InputLabel, MenuItem, Paper, Select } from '@material-ui/core';
 
 // This is a kludge that I really don't see any other way around.
 // Apparently, a React leaflet map can't be manually controlled after it's created.
@@ -40,16 +41,18 @@ type MapViewState = {
     center: [number, number],
     zoom: number,
     countriesData: CountryData[],
-    showingStatesOnly: boolean,
-    statesData: StateDataCurrent[]
+    globalOrStates: "global" | "states",
+    statesData: StateDataCurrent[],
+    dataKind: "total" | "today" | "deaths" | "recovered"
 };
 export class MapView extends React.Component<{}, MapViewState> {
     state: MapViewState = {
-        center: [37.0902, -95.7129],
-        zoom: 5,
+        center: [20, 0],
+        zoom: 3,
         countriesData: [],
-        showingStatesOnly: false,
-        statesData: []
+        globalOrStates: "global",
+        statesData: [],
+        dataKind: "total"
     }
 
     /*
@@ -81,27 +84,69 @@ export class MapView extends React.Component<{}, MapViewState> {
         getCountryData(location)
             .then((x) => {
                 this.setState({
-                    center: [x.countryInfo.lat, x.countryInfo.long]
+                    center: [x.countryInfo.lat, x.countryInfo.long],
+                    zoom: 5
                 })
             });
     }
 
+    changeGlobalOrStates(event: React.ChangeEvent<{
+        name?: string | undefined;
+        value: unknown;
+    }>) {
+        let val = event.target.value;
+
+        if (val === "global" || val === "states")
+            this.setState({
+                globalOrStates: val
+            });
+    }
+
+    changeDataKind(event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>) {
+        let val = event.target.value;
+
+        if (val === "today" || val === "total" || val === "deaths" || val === "recovered")
+            this.setState({
+                dataKind: val
+            });
+    }
+
+    circleScaleFactor(): number {
+        switch (this.state.dataKind) {
+            case "total": return 0.1;
+            case "today": return 7;
+            case "deaths": return 1;
+            case "recovered": return 0.1;
+        }
+    }
+
     render() {
         var circles;
-        if (!this.state.showingStatesOnly) {
-            circles = this.state.countriesData.map((x) => 
-                        <Circle 
-                            center={[x.countryInfo.lat, x.countryInfo.long]} 
-                            radius={x.cases * 0.1} />)
+        if (this.state.globalOrStates === "global") {
+            circles = this.state.countriesData.map((x) => {
+                let data = extractData(x, this.state.dataKind);
+                return (<Circle 
+                    center={[x.countryInfo.lat, x.countryInfo.long]} 
+                    radius={data * this.circleScaleFactor()}>
+                    <Popup><b>{x.country}:</b> {data}</Popup>
+                </Circle>);
+            });
         } else {
             circles = this.state.statesData.map((x) => {
+                // We need to do extra work for the States
+                // because disease.sh doesn't have geocoding data
+                // for them
                 var stateIndex = states.indexOf(x.state);
                 if (stateIndex < 0) return undefined;
 
                 var latlng = latlngs[stateIndex].slice();
+
+                let data = extractData(x, this.state.dataKind);
                 return (<Circle 
                     center={[latlng[0], latlng[1]]} 
-                    radius={x.cases * 0.1} />);
+                    radius={data * this.circleScaleFactor()}>
+                    <Popup><b>{x.state}:</b> {data}</Popup>
+                </Circle>);
             }).filter((x) => x !== undefined);
         }
 
@@ -132,9 +177,36 @@ export class MapView extends React.Component<{}, MapViewState> {
                     absolutePosition={{x: 150, y: 14}}
                     pressEnterEvent={(val) => this.focusMapToLocation(val)}
                     />
+                <Paper elevation={1} style={{
+                    position: "absolute",
+                    top: 15,
+                    left: 425,
+                    zIndex: 10
+                }}>
+                    <Select
+                        defaultValue={"global"}
+                        onChange={(x) => this.changeGlobalOrStates(x)}
+                        style={{
+                            margin: 11
+                        }}>
+                        <MenuItem value={"global"}>Global</MenuItem>
+                        <MenuItem value={"states"}>States</MenuItem>
+                    </Select>
+                    <Select
+                        defaultValue={"total"}
+                        onChange={(x) => this.changeDataKind(x)}
+                        style={{
+                            margin: 11
+                        }}>
+                        <MenuItem value={"total"}>Total</MenuItem>
+                        <MenuItem value={"today"}>Today</MenuItem>
+                        <MenuItem value={"deaths"}>Deaths</MenuItem>
+                        <MenuItem value={"recovered"}>Recovered</MenuItem>
+                    </Select>
+                </Paper>
                 <MapContainer
-                    center={L.latLng(37.0902, -95.7129)}
-                    zoom={5}
+                    center={[20, 0]}
+                    zoom={3}
                     scrollWheelZoom={true}
                     style={{
                         height: "100vh",
@@ -146,6 +218,9 @@ export class MapView extends React.Component<{}, MapViewState> {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     {circles}
+                    <SetCenterAndZoom 
+                        center={this.state.center}
+                        zoom={this.state.zoom}/>
                 </MapContainer>
             </div>
         );

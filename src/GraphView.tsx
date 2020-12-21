@@ -1,9 +1,10 @@
 import React from 'react';
 import {ResponsiveLine} from '@nivo/line';
 import {ResponsiveBar} from '@nivo/bar';
-import { Chip, Menu, MenuItem } from '@material-ui/core';
-import {grabData, states, abbreviations} from './GrabDataHelpers';
+import { Chip, FormControl, Menu, MenuItem, Paper, Select } from '@material-ui/core';
+import {grabData, states, abbreviations, getCountryHistoricalData, CountryHistoricalData} from './GrabDataHelpers';
 import Searchbar from './Searchbar';
+import zIndex from '@material-ui/core/styles/zIndex';
 
 // taken direct from Nivo's website lmao
 interface GraphLine {
@@ -22,57 +23,86 @@ interface StateHistoryData {
 type GraphViewState = {
     graphData: GraphLine[],
     barOrLine: "bar" | "line",
-    barOrLineMenuOpen: boolean
+    globalOrStates: "global" | "states"
 }
 export class GraphView extends React.Component<{}, GraphViewState> {
     state: GraphViewState = {
         graphData: [],
         barOrLine: "line",
-        barOrLineMenuOpen: false
+        globalOrStates: "global"
     }
 
     componentDidMount() {
-        grabData("https://api.covidtracking.com/v1/states/ca/daily.json",
-            (val: StateHistoryData, index) => {
-                let dateAsString = val.date.toString();
-                let formString = dateAsString.substring(0, 4) + "-" + dateAsString.substring(4, 6) + "-" + dateAsString.substring(6);
-                return {
-                    x: formString,
-                    y: val.positive
-                }
-            }
-        ).then((x) => this.setState({
-            graphData: [{
-                id: "CA",
-                data: x.reverse()
-            }]
-        }));
+        this.addLineToGraph("USA");
     }
 
     addLineToGraph(newLocationName: string) {
-        let stateIndex = states.indexOf(newLocationName);
-        let statePostal = abbreviations[stateIndex];
+        if (this.state.globalOrStates === "global") {
+            getCountryHistoricalData(newLocationName)
+                .catch(() => {
+                    // This could be for a multitude of reasons,
+                    // we don't have time to get into it.
+                    return;
+                })
+                .then((x) => {
+                    if (x) {
+                        // this feels dirty.
+                        let dates = Object.keys(x.timeline.cases);
+                        let values = Object.values(x.timeline.cases);
 
-        grabData("https://api.covidtracking.com/v1/states/" + statePostal.toLowerCase() + "/daily.json",
-            (val: StateHistoryData, index) => {
-                let dateAsString = val.date.toString();
-                let formString = dateAsString.substring(0, 4) + "-" + dateAsString.substring(4, 6) + "-" + dateAsString.substring(6);
-                return {
-                    x: formString,
-                    y: val.positive
+                        let formattedDates = dates.map((x) => {
+                            let split = x.split('/');
+                            return "20" + split[2].toString() + "-" + split[0].toString() + "-" + split[1].toString();
+                        })
+
+                        let zipped = formattedDates.map((x, index) => {
+                            return {
+                                x: x,
+                                y: values[index]
+                            }
+                        })
+
+                        console.log(zipped);
+                        
+                        let newGraphLine: GraphLine = {
+                            id: x.country,
+                            data: zipped
+                        }
+
+                        let graphData = this.state.graphData.slice();
+                        graphData.push(newGraphLine);
+                        this.setState({
+                            graphData: graphData
+                        })
+                    }
+                });
+        } else {
+            // States historical data from the COVID Tracking Project
+            let stateIndex = states.indexOf(newLocationName);
+            let statePostal = abbreviations[stateIndex];
+
+            grabData("https://api.covidtracking.com/v1/states/" + statePostal.toLowerCase() + "/daily.json",
+                (val: StateHistoryData, index) => {
+                    let dateAsString = val.date.toString();
+                    let formString = dateAsString.substring(0, 4) + "-" + dateAsString.substring(4, 6) + "-" + dateAsString.substring(6);
+                    return {
+                        x: formString,
+                        y: val.positive
+                    }
                 }
-            }
-        ).then((x) => {
-            var graphData: GraphLine[] = this.state.graphData.slice();
-            var newGraphLine: GraphLine = {
-                id: statePostal,
-                data: x.reverse()
-            }
-            graphData.push(newGraphLine);
-            this.setState({
-                graphData: graphData
-            })
-        });
+            ).then((x) => {
+                var graphData: GraphLine[] = this.state.graphData.slice();
+                var newGraphLine: GraphLine = {
+                    id: statePostal,
+                    data: x.reverse()
+                }
+                graphData.push(newGraphLine);
+                this.setState({
+                    graphData: graphData
+                })
+            });
+        }
+        
     }
 
     removeLineFromGraph(id: number | string) {
@@ -81,6 +111,29 @@ export class GraphView extends React.Component<{}, GraphViewState> {
         this.setState({
             graphData: filtered
         });
+    }
+
+    changeLineOrBar(event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>) {
+        let val = event.target.value;
+
+        if (val === "bar" || val === "line") {
+            this.setState({
+                barOrLine: val
+            });
+        }
+    }
+
+    changeGlobalOrState(event: React.ChangeEvent<{
+        name?: string | undefined;
+        value: unknown;
+    }>) {
+        let val = event.target.value;
+        if (val === "global" || val === "states") {
+            this.setState({
+                globalOrStates: val,
+                graphData: []
+            })
+        } 
     }
 
     render() {
@@ -165,26 +218,35 @@ export class GraphView extends React.Component<{}, GraphViewState> {
                     <Searchbar 
                         pressEnterEvent={(val) => this.addLineToGraph(val)} // TODO //
                         />
-                    <header><h1>{locationNames}  
-                        <button style={{
-                            background: "none",
-                            border: "none",
-                            padding: 5,
-                            fontFamily: "Roboto;sans-serif",
-                            fontWeight: "bold",
-                            fontSize: 30,
-                            textDecoration: "underline",
-                            cursor: "pointer"
-                        }}
-                        onClick={() => this.setState({barOrLineMenuOpen: true})}> 
-                            {historyOrCurrent}
-                            <Menu 
-                                open={this.state.barOrLineMenuOpen}
-                                onClose={() => this.setState({barOrLineMenuOpen: false})}>
-                                <MenuItem onClick={() => this.setState({barOrLine: "line", barOrLineMenuOpen: false})}>History</MenuItem>
-                                <MenuItem onClick={() => this.setState({barOrLine: "bar", barOrLineMenuOpen: false})}>Current</MenuItem>
-                            </Menu>
-                        </button>
+                    <Paper elevation={1} style={{
+                        marginRight: 11
+                    }}>
+                        <Select
+                            defaultValue={"global"}
+                            onChange={(x) => this.changeGlobalOrState(x)}
+                            style={{
+                                margin: 11
+                            }}>
+                            <MenuItem value={"global"}>Global</MenuItem>
+                            <MenuItem value={"states"}>States</MenuItem>
+                        </Select>
+                    </Paper>
+                    <header><h1>
+                        {locationNames + " "}
+                        <Select 
+                            defaultValue={"line"}
+                            onChange={(x) => this.changeLineOrBar(x)}
+                            style={{
+                                fontSize: 30,
+                                fontFamily: "Roboto;sans-serif",
+                                fontWeight: "bold",
+                            }}
+                            disableUnderline={true}
+                            margin={"dense"}
+                                >
+                            <MenuItem value={"line"}>history</MenuItem>
+                            <MenuItem value={"bar"}>current</MenuItem>
+                        </Select>
                     </h1></header>
                 </div>
                 {locationChips}
