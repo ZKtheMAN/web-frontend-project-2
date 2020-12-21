@@ -2,33 +2,67 @@ import { InputAdornment, Paper, TextField } from "@material-ui/core";
 import React from "react";
 import SearchIcon from "@material-ui/icons/Search"
 
-/* keeping this for later
-                style={{
-                    position: "absolute",
-                    top: "1vw",
-                    left: "1vw",
-                    zIndex: 10,
-                }}*/
+type SearchbarSubmitEvent = (value: string) => void;
 
-export function Searchbar() {
-    return (
-        <Paper elevation={1}>
-                <TextField
-                    placeholder="Search..."
-                    variant="outlined"
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon />
-                            </InputAdornment>
-                        ),
-                    }}
-                    onKeyUp={(event) => {
-                        if (event.key === "Enter") {
-                            alert("ayy");
-                        }
-                    }}
-                />
-            </Paper>
-    )
+type SearchbarProps = {
+    absolutePosition?: {x: number | string, y: number | string},
+    autofills?: string[],
+    pressEnterEvent: SearchbarSubmitEvent
+};
+type SearchbarState = {
+    textFieldVal: string,
+    autofillVisible: boolean
+};
+class Searchbar extends React.Component<SearchbarProps, SearchbarState> {
+    static defaultProps = {};
+    state = {
+        textFieldVal: "",
+        autofillVisible: false
+    }
+
+    render() {
+        var styleObj: React.CSSProperties = {
+            width: "258px",
+            marginLeft: 0,
+            marginRight: 10
+        };
+    
+        if (this.props.absolutePosition !== undefined) {
+            styleObj.position = "absolute";
+            styleObj.top = this.props.absolutePosition?.y;
+            styleObj.left = this.props.absolutePosition?.x;
+            styleObj.zIndex = 10;
+        }
+    
+        return (
+            <div className="Searchbar" style={{
+                zIndex: 10
+            }}>
+                <Paper elevation={1} style={styleObj}>
+                    <TextField
+                        placeholder="Search..."
+                        variant="outlined"
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                        onChange={(event) => {
+                            this.setState({
+                                textFieldVal: event.target.value
+                            });
+                        }}
+                        onKeyUp={(event) => {
+                            if (event.key === "Enter")
+                                this.props.pressEnterEvent(this.state.textFieldVal);
+                        }}
+                    />
+                </Paper>
+            </div>
+        )
+    }
 }
+
+export default Searchbar;

@@ -1,3 +1,9 @@
+# Team 5 COVID-19 Site
+
+**Authors:** Zakee Khattak, Chukwudi Ikem, Rene Ortiz
+
+[Video presentation](https://youtu.be/yprODYY05iI)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
