@@ -1,9 +1,8 @@
 import React from 'react';
 import Searchbar from './Searchbar';
-import * as L from "leaflet";
-import { Circle, MapConsumer, MapContainer, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
-import {getMapData, getCountryData, getUSData, CountryData, StateDataCurrent, StateHistoryData, states, latlngs, LocationData, extractData} from './GrabDataHelpers'
-import { InputLabel, MenuItem, Paper, Select } from '@material-ui/core';
+import { Circle, MapContainer, Popup, TileLayer, useMap} from 'react-leaflet';
+import { getMapData, getCountryData, getUSData, CountryData, StateDataCurrent, states, latlngs, extractData } from './GrabDataHelpers'
+import { MenuItem, Paper, Select } from '@material-ui/core';
 
 // This is a kludge that I really don't see any other way around.
 // Apparently, a React leaflet map can't be manually controlled after it's created.

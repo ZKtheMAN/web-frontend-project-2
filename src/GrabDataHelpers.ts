@@ -1,7 +1,6 @@
-import axios from 'axios';
 //can use /deaths, /daily, /recovered, /confirmed, /countries/[CountryName] on base_url
-const base_url = "https://covid19.mathdro.id/api";
-const global_overview_url = "https://disease.sh/v3/covid-19/all";
+//const base_url = "https://covid19.mathdro.id/api";
+//const global_overview_url = "https://disease.sh/v3/covid-19/all";
 const states_url = "https://disease.sh/v3/covid-19/states/";
 //Gets all data for countries
 const countries_url = 'https://disease.sh/v3/covid-19/countries/';

@@ -1,58 +1,63 @@
 import React from 'react';
 import {Button} from '@material-ui/core';
-import {Public, TableChart, Assessment} from '@material-ui/icons';
+import {Public, TableChart, Assessment, Info} from '@material-ui/icons';
 import './App.css';
 import {MapView} from './MapView';
 import {DataView} from './DataView';
 import {GraphView} from './GraphView';
+import { AboutView } from './AboutView';
 
 
-enum AppView {
-    Map,
-    Data,
-    Graph
-}
+
 type AppState = {
-    currentView: AppView
+    currentView: "map" | "data" | "graph" | "about"
 }
 class App extends React.Component<{}, AppState> {
-    state = {
-        currentView: AppView.Map
+    state: AppState = {
+        currentView: "map"
     };
 
     render() {
         var view;
         switch (this.state.currentView) {
-            case AppView.Map:
-                view = <MapView></MapView>;
+            case "map":
+                view = <MapView />;
                 break;
-            case AppView.Data:
-                view = <DataView></DataView>;
+            case "data":
+                view = <DataView />;
                 break;
-            case AppView.Graph:
-                view = <GraphView></GraphView>;
+            case "graph":
+                view = <GraphView />;
                 break;
+            case "about":
+                view = <AboutView />
         }
 
         return (
             <div className="App">
                 <div className="nav-rail">
-                    <Button onClick={() => {this.setState({currentView: AppView.Map})}}>
+                    <Button onClick={() => {this.setState({currentView: "map"})}}>
                         <div className="nav-rail-button">
                             <Public />
                             <span>Map</span>
                         </div>
                     </Button>
-                    <Button onClick={() => {this.setState({currentView: AppView.Data})}}>
+                    <Button onClick={() => {this.setState({currentView: "data"})}}>
                         <div className="nav-rail-button">
                             <TableChart />
                             <span>Data</span>
                         </div>
                     </Button>
-                    <Button onClick={() => {this.setState({currentView: AppView.Graph})}}>
+                    <Button onClick={() => {this.setState({currentView: "graph"})}}>
                         <div className="nav-rail-button">
                             <Assessment />
                             Graph
+                        </div>
+                    </Button>
+                    <Button onClick={() => this.setState({currentView: "about"})}>
+                        <div className="nav-rail-button">
+                            <Info />
+                            About
                         </div>
                     </Button>
                 </div>

@@ -1,7 +1,7 @@
 import React from 'react'
 import {DataGrid, ColDef, SortModel} from '@material-ui/data-grid'
 import Searchbar from './Searchbar'
-import {CountryData, getMapData, getUSData, grabData, StateDataCurrent, states} from './GrabDataHelpers';
+import {CountryData, getMapData, getUSData, StateDataCurrent, states} from './GrabDataHelpers';
 import { MenuItem, Select } from '@material-ui/core';
 
 const statesColumns: ColDef[] = [

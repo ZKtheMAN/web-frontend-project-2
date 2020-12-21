@@ -1,10 +1,9 @@
 import React from 'react';
 import {ResponsiveLine} from '@nivo/line';
 import {ResponsiveBar} from '@nivo/bar';
-import { Chip, FormControl, Menu, MenuItem, Paper, Select } from '@material-ui/core';
-import {grabData, states, abbreviations, getCountryHistoricalData, CountryHistoricalData} from './GrabDataHelpers';
+import { Chip, MenuItem, Paper, Select } from '@material-ui/core';
+import {grabData, states, abbreviations, getCountryHistoricalData} from './GrabDataHelpers';
 import Searchbar from './Searchbar';
-import zIndex from '@material-ui/core/styles/zIndex';
 
 // taken direct from Nivo's website lmao
 interface GraphLine {
@@ -199,14 +198,7 @@ export class GraphView extends React.Component<{}, GraphViewState> {
                 />
             );
         }
-
-        var historyOrCurrent;
-        if (this.state.barOrLine === "line") {
-            historyOrCurrent = "history";
-        } else {
-            historyOrCurrent = "current";
-        }
-
+        
         return (
             <div className="GraphView">
                 <div style={{
