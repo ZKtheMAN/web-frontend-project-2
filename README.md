@@ -1,3 +1,11 @@
+# web-frontend-project-2
+
+This was a project for a course on Web Front-End Engineering. This project was a website that presented data on the COVID-19 pandemic. The website was made as a React app and used components from Material UI, Nivo, and Leaflet. The data was obtained using APIs from [disease.sh](https://disease.sh/) and [the COVID Tracking Project at The Atlantic.](https://covidtracking.com/)
+
+The original README for this project is presented below.
+
+------------------------------------
+
 # Team 5 COVID-19 Site
 
 **Authors:** Zakee Khattak, Chukwudi Ikem, Rene Ortiz
